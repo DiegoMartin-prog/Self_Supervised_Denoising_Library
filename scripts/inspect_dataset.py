@@ -1,4 +1,7 @@
 import os
+import sys
+import torch
+import matplotlib.image as mplimg
 
 from glob import glob
 from pathlib import Path
@@ -33,6 +36,23 @@ def read_images(dir: Path) -> tuple:
     
     return img_paths, ext_found
 
+
+def load_image_to_tensor(img_path:str) -> torch.Tensor:
+    """
+    Given a path, load it to a pytorch tensor in grayscale.
+
+    Args:
+        img_path (str): input image path
+
+    Returns:
+        Torch tensor containing the loaded image
+    """
+    # x = torch.load(img_path, map_location=torch.device("cpu"), weights_only=True)
+    img_np = mplimg.imread(img_path)
+    x = torch.from_numpy(img_np) 
+    return x
+
+
 if __name__ == '__main__':
     # Given the root directory of BSD68 return an ordered list of image paths
     
@@ -62,10 +82,14 @@ if __name__ == '__main__':
     sorted_imgs, extensions = read_images(data_path)
     if sorted_imgs == 0:
         print(f"No images have been found in the {data_path} directory!")
+        print("Exiting the program...")
+        sys.exit()
     else:
         print(f"Number of found images: {len(sorted_imgs)}")
         print(f"Sorted list (first {min(len(sorted_imgs), 10)}): " \
               f"{sorted_imgs[:min(len(sorted_imgs), 10)]}")
         print(f"Found the following extensions: {extensions}")
 
-
+    tmp_img = load_image_to_tensor(sorted_imgs[0])
+    print(f"Type of the loaded image: {type(tmp_img)}")
+    print(f"Shape of the loaded image: {tmp_img.shape}")
